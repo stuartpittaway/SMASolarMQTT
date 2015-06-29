@@ -59,3 +59,5 @@ target/
 .idea/misc.xml
 .idea/SMASolarMQTT.iml
 .idea/modules.xml
+.idea/workspace.xml
+.idea/vcs.xml
