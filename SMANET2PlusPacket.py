@@ -1,3 +1,6 @@
+# GNU GENERAL PUBLIC LICENSE -  Version 2, June 1991
+# See LICENCE and README file for details
+
 import array
 import math
 

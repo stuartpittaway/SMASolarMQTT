@@ -1,5 +1,7 @@
-__author__ = 'Stuart Pittaway'
+# GNU GENERAL PUBLIC LICENSE -  Version 2, June 1991
+# See LICENCE and README file for details
 
+__author__ = 'Stuart Pittaway'
 
 class SMABluetoothPacket:
     def __str__(self):

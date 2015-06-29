@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+
+# GNU GENERAL PUBLIC LICENSE -  Version 2, June 1991
+# See LICENCE and README file for details
+
 # This will background the task
 # nohup python SMASolarMQTT.py 00:80:25:1D:AC:53 0000 1> SMASolarMQTT.log 2> SMASolarMQTT.log.error &
 
@@ -115,6 +119,16 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
                 packet_send_counter += 1
 
                 # Output 10 parameters for AC values
+                # 0x4640 AC Output Phase 1
+                # 0x4641 AC Output Phase 2
+                # 0x4642 AC Output Phase 3
+                # 0x4648 AC Line Voltage Phase 1
+                # 0x4649 AC Line Voltage Phase 2
+                # 0x464a AC Line Voltage Phase 3
+                # 0x4650 AC Line Current Phase 1
+                # 0x4651 AC Line Current Phase 2
+                # 0x4652 AC Line Current Phase 3
+                # 0x4657 AC Grid Frequency
                 payload = "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}".format(L2[1][1], L2[2][1], L2[3][1], L2[4][1],
                                                                            L2[5][1],
                                                                            L2[6][1], L2[7][1], L2[8][1], L2[9][1],
@@ -126,26 +140,32 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
                 L2 = SMASolarMQTT_library.spotvalues_dcwatts(btSocket, packet_send_counter, mylocalBTAddress,
                                                              InverterCodeArray,
                                                              AddressFFFFFFFF)
+                #0x251e DC Power Watts
                 packet_send_counter += 1
                 payload = "{0}".format(L2[1][1])
                 client.publish(topic_spotvalues_dcwatts, payload=payload, qos=0, retain=False)
                 time.sleep(1)
 
-                if (packet_send_counter % 5==0):
-                    # Only run this function every 5 packets as its a slowly changing total number
+                if (packet_send_counter % 6==0):
+                    # Only run this function every few packets as its a slowly changing total number
                     # print "yield"
+
                     L2 = SMASolarMQTT_library.spotvalues_yield(btSocket, packet_send_counter, mylocalBTAddress,
                                                                InverterCodeArray,
                                                                AddressFFFFFFFF)
+                    # 0x2601 Total Yield kWh
+                    # 0x2622 Day Yield kWh
+                    # 0x462e Operating time (hours)
+                    # 0x462f Feed in time (hours)
                     packet_send_counter += 1
                     payload = "{0},{1},{2},{3}".format(L2[1][1], L2[2][1], L2[3][1], L2[4][1])
                     client.publish(topic_spotvalues_yield, payload=payload, qos=0, retain=False)
                     time.sleep(1)
 
-                if (packet_send_counter % 25==0):
-                    #Only run this function every 25 packets as this figure only updates every 5 minutes
                     # print "dc"
                     # These values only update every 5 mins by the inverter.
+                    #0x451f DC Voltage V
+                    #0x4521 DC Current A
                     L2 = SMASolarMQTT_library.spotvalues_dc(btSocket, packet_send_counter, mylocalBTAddress,
                                                             InverterCodeArray,
                                                             AddressFFFFFFFF)
