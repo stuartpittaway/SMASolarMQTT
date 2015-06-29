@@ -55,3 +55,7 @@ docs/_build/
 
 # PyBuilder
 target/
+.idea/.name
+.idea/misc.xml
+.idea/SMASolarMQTT.iml
+.idea/modules.xml
