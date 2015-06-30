@@ -52,3 +52,50 @@ Scanning ...
         00:80:25:1D:AC:53       SMA001d SN: 2120051742 SN2120051742
 		
 	
+# Configuring emonCMS to detect nodes
+
+emonCMS should automatically detect and show the solar values inside the "Nodes" page, however they will be missing descriptions.
+
+Click on EmonHub and cut and paste the below into the configuration editor, then click SAVE.
+
+<pre>
+[[50]]
+    nodename = SMASolarMQTT_AC
+    firmware =not_applicable
+    hardware = not_applicable
+    [[[rx]]]
+       names = ACOutputPhase1,ACOutputPhase2,ACOutputPhase3,ACLineVoltagePhase1,ACLineVoltagePhase2,ACLineVoltagePhase3,ACLineCurrentPhase1,ACLineCurrentPhase2,ACLineCurrentPhase3,ACGridFrequency
+       datacode = h
+       scales = 1,1,1,1,1,1,1,1,1,1
+       units =W,W,W,V,V,V,A,A,A,Hz
+
+[[51]]
+    nodename = SMASolarMQTT_DCWatts
+    firmware = not_applicable
+    hardware = not_applicable
+    [[[rx]]]
+       names = SolarDCWatts
+       datacode = h
+       scales = 1
+       units =W
+
+[[52]]
+    nodename = SMASolarMQTT_Yield
+    firmware = not_applicable
+    hardware = not_applicable
+    [[[rx]]]
+       names = TotalYield, DayYield, OperatingTime, FeedInTime
+       datacode = h
+       scales = 1,1,1,1
+       units =kWh,kWh,hours,hours
+
+[[53]]
+    nodename = SMASolarMQTT_DC
+    firmware = not_applicable
+    hardware = not_applicable
+    [[[rx]]]
+       names = DCVoltage, DCCurrent
+       datacode = h
+       scales = 1,1
+       units =V,A
+</pre>
