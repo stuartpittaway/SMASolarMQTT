@@ -1,10 +1,23 @@
+<pre>
+   _____ __  __           _____       _            __  __  ____ _______ _______ 
+  / ____|  \/  |   /\    / ____|     | |          |  \/  |/ __ |__   __|__   __|
+ | (___ | \  / |  /  \  | (___   ___ | | __ _ _ __| \  / | |  | | | |     | |   
+  \___ \| |\/| | / /\ \  \___ \ / _ \| |/ _` | '__| |\/| | |  | | | |     | |   
+  ____) | |  | |/ ____ \ ____) | (_) | | (_| | |  | |  | | |__| | | |     | |   
+ |_____/|_|  |_/_/    \_|_____/ \___/|_|\__,_|_|  |_|  |_|\___\_\ |_|     |_|   
+
+ </pre>
+
 # SMASolarMQTT
 
-Report generation statistics from SMA photovoltaic inverter over a shared MQTT hub.  Designed for use with emonCMS and emonPi see http://openenergymonitor.org/emon/
+Report generation statistics from SMA photovoltaic inverter over a shared MQTT hub.  
+
+Designed for use with emonCMS and emonPi see http://openenergymonitor.org/emon/
 
 Copyright 2013-2015 Stuart Pittaway
 
 GNU GENERAL PUBLIC LICENSE -  Version 2, June 1991
+
 
 # Installation
 
