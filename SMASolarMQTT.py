@@ -48,8 +48,8 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
             # print "Connecting to SMA Inverter over Bluetooth"
             btSocket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
             btSocket.connect((bd_addr, port))
-            # Give BT 10 seconds to timeout so we dont hang and wait forever
-            btSocket.settimeout(10)
+            # Give BT 5 seconds to timeout so we don't hang and wait forever
+            btSocket.settimeout(5)
 
             # http://pybluez.googlecode.com/svn/www/docs-0.7/public/bluetooth.BluetoothSocket-class.html
             mylocalBTAddress = SMASolarMQTT_library.BTAddressToByteArray(btSocket.getsockname()[0], ":")
@@ -186,8 +186,6 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
             traceback.print_exc(file=sys.stderr)
 
             btSocket.close()
-            # Give bluetooth time to recover
-            time.sleep(20)
 
         except Exception as inst:
             # print >>sys.stderr, type(inst)     # the exception instance
@@ -196,7 +194,6 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
             traceback.print_exc(file=sys.stderr)
 
             btSocket.close()
-            time.sleep(20)
 
 
 parser = argparse.ArgumentParser(
