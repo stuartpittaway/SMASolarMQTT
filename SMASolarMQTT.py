@@ -10,12 +10,13 @@
 __author__ = 'Stuart Pittaway'
 
 import time
-from datetime import datetime
 import argparse
 import sys
 import traceback
 import paho.mqtt.client as mqtt
 import bluetooth
+import datetime
+from datetime import datetime
 
 from SMANET2PlusPacket import SMANET2PlusPacket
 from SMABluetoothPacket import SMABluetoothPacket
@@ -41,15 +42,23 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
     InverterPasswordArray = SMASolarMQTT_library.encodeInverterPassword(InverterPassword)
     port = 1
 
+    error_count = 0
     packet_send_counter = 0
 
     while True:
         try:
+
+            # Connect to MQTT
+            client = mqtt.Client()
+            client.on_connect = on_connect
+            client.on_message = on_message
+            client.connect("localhost", 1883, 60)
+
             # print "Connecting to SMA Inverter over Bluetooth"
             btSocket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
             btSocket.connect((bd_addr, port))
             # Give BT 5 seconds to timeout so we don't hang and wait forever
-            btSocket.settimeout(5)
+            btSocket.settimeout(10)
 
             # http://pybluez.googlecode.com/svn/www/docs-0.7/public/bluetooth.BluetoothSocket-class.html
             mylocalBTAddress = SMASolarMQTT_library.BTAddressToByteArray(btSocket.getsockname()[0], ":")
@@ -98,21 +107,18 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
             topic_spotvalues_dcwatts = "{0}/{1}/values".format(mqtt_prefix, mqtt_initial_node + 1)
             topic_spotvalues_yield = "{0}/{1}/values".format(mqtt_prefix, mqtt_initial_node + 2)
             topic_spotvalues_dc = "{0}/{1}/values".format(mqtt_prefix, mqtt_initial_node + 3)
+            topic_errors = "{0}/{1}/values".format(mqtt_prefix, mqtt_initial_node + 4)
 
-            # Connect to MQTT
-            client = mqtt.Client()
-            client.on_connect = on_connect
-            client.on_message = on_message
-            client.connect("localhost", 1883, 60)
 
             while True:
                 # MQTT Blocking call that processes network traffic, dispatches callbacks and handles reconnecting.
                 client.loop()
 
                 # Make sure the packet counter won't exceed 8 bits
-                if packet_send_counter > 222:
+                if packet_send_counter > 200:
                     packet_send_counter = 0
 
+                print("ac")
                 L2 = SMASolarMQTT_library.spotvalues_ac(btSocket, packet_send_counter, mylocalBTAddress,
                                                         InverterCodeArray,
                                                         AddressFFFFFFFF)
@@ -137,19 +143,19 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
                 time.sleep(1)
 
                 # print "dc watts"
-                L2 = SMASolarMQTT_library.spotvalues_dcwatts(btSocket, packet_send_counter, mylocalBTAddress,
-                                                             InverterCodeArray,
-                                                             AddressFFFFFFFF)
-                #0x251e DC Power Watts
-                packet_send_counter += 1
-                payload = "{0}".format(L2[1][1])
-                client.publish(topic_spotvalues_dcwatts, payload=payload, qos=0, retain=False)
-                time.sleep(1)
+                # L2 = SMASolarMQTT_library.spotvalues_dcwatts(btSocket, packet_send_counter, mylocalBTAddress,
+                #                                              InverterCodeArray,
+                #                                              AddressFFFFFFFF)
+                # #0x251e DC Power Watts
+                # packet_send_counter += 1
+                # payload = "{0}".format(L2[1][1])
+                # client.publish(topic_spotvalues_dcwatts, payload=payload, qos=0, retain=False)
+                # time.sleep(1)
+
 
                 if (packet_send_counter % 6==0):
                     # Only run this function every few packets as its a slowly changing total number
-                    # print "yield"
-
+                    print("yield")
                     L2 = SMASolarMQTT_library.spotvalues_yield(btSocket, packet_send_counter, mylocalBTAddress,
                                                                InverterCodeArray,
                                                                AddressFFFFFFFF)
@@ -162,7 +168,7 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
                     client.publish(topic_spotvalues_yield, payload=payload, qos=0, retain=False)
                     time.sleep(1)
 
-                    # print "dc"
+                    print("dc v/a")
                     # These values only update every 5 mins by the inverter.
                     #0x451f DC Voltage V
                     #0x4521 DC Current A
@@ -179,21 +185,27 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
                 time.sleep(5)
 
         except bluetooth.btcommon.BluetoothError as inst:
-            print >> sys.stderr, "Bluetooth Error"
+            print("Bluetooth Error")
             # print >>sys.stderr, type(inst)     # the exception instance
             # print >>sys.stderr, inst.args      # arguments stored in .args
             # print >>sys.stderr, inst           # __str__ allows args to printed directly
+            print(datetime.now().isoformat())
             traceback.print_exc(file=sys.stderr)
-
             btSocket.close()
+            error_count+=1
+            payload = "{0}".format(error_count)
+            client.publish(topic_errors, payload=payload, qos=0, retain=False)
 
         except Exception as inst:
             # print >>sys.stderr, type(inst)     # the exception instance
             # print >>sys.stderr, inst.args      # arguments stored in .args
             # print >>sys.stderr, inst           # __str__ allows args to printed directly
+            print(datetime.now().isoformat())
             traceback.print_exc(file=sys.stderr)
-
             btSocket.close()
+            error_count+=1
+            payload = "{0}".format(error_count)
+            client.publish(topic_errors, payload=payload, qos=0, retain=False)
 
 
 parser = argparse.ArgumentParser(
