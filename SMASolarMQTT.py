@@ -22,7 +22,6 @@ from SMANET2PlusPacket import SMANET2PlusPacket
 from SMABluetoothPacket import SMABluetoothPacket
 import SMASolarMQTT_library
 
-
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     print("Connected to MQTT with result code "+str(rc))
@@ -142,15 +141,15 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
                 client.publish(topic_spotvalues_ac, payload=payload, qos=0, retain=False)
                 time.sleep(1)
 
-                # print "dc watts"
-                # L2 = SMASolarMQTT_library.spotvalues_dcwatts(btSocket, packet_send_counter, mylocalBTAddress,
-                #                                              InverterCodeArray,
-                #                                              AddressFFFFFFFF)
-                # #0x251e DC Power Watts
-                # packet_send_counter += 1
-                # payload = "{0}".format(L2[1][1])
-                # client.publish(topic_spotvalues_dcwatts, payload=payload, qos=0, retain=False)
-                # time.sleep(1)
+                print("dc watts")
+                L2 = SMASolarMQTT_library.spotvalues_dcwatts(btSocket, packet_send_counter, mylocalBTAddress,
+                                                              InverterCodeArray,
+                                                              AddressFFFFFFFF)
+                #0x251e DC Power Watts
+                packet_send_counter += 1
+                payload = "{0}".format(L2[1][1])
+                client.publish(topic_spotvalues_dcwatts, payload=payload, qos=0, retain=False)
+                time.sleep(1)
 
 
                 if (packet_send_counter % 6==0):
@@ -168,17 +167,17 @@ def main(bd_addr, InverterPassword, mqtt_initial_node):
                     client.publish(topic_spotvalues_yield, payload=payload, qos=0, retain=False)
                     time.sleep(1)
 
-                    print("dc v/a")
+                    #print("dc v/a")
                     # These values only update every 5 mins by the inverter.
                     #0x451f DC Voltage V
                     #0x4521 DC Current A
-                    L2 = SMASolarMQTT_library.spotvalues_dc(btSocket, packet_send_counter, mylocalBTAddress,
-                                                            InverterCodeArray,
-                                                            AddressFFFFFFFF)
-                    packet_send_counter += 1
-                    payload = "{0},{1}".format(L2[1][1], L2[2][1])
-                    client.publish(topic_spotvalues_dc, payload=payload, qos=0, retain=False)
-                    time.sleep(1)
+                    #L2 = SMASolarMQTT_library.spotvalues_dc(btSocket, packet_send_counter, mylocalBTAddress,
+                    #                                        InverterCodeArray,
+                    #                                        AddressFFFFFFFF)
+                    #packet_send_counter += 1
+                    #payload = "{0},{1}".format(L2[1][1], L2[2][1])
+                    #client.publish(topic_spotvalues_dc, payload=payload, qos=0, retain=False)
+                    #time.sleep(1)
 
 
                 # Delay to give PI some CPU back and avoid drowning the SMA inverter with BT traffic

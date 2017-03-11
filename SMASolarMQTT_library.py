@@ -236,13 +236,13 @@ def spotvaluelist_dictionary():
 
     spotvaluelist[0x2601] = namedtuple("spotvalue", ["Description", "Units", "Scale"])
     spotvaluelist[0x2601].Description = "Total Yield"
-    spotvaluelist[0x2601].Units = "kWh"
-    spotvaluelist[0x2601].Scale = 1000
+    spotvaluelist[0x2601].Units = "Wh"
+    spotvaluelist[0x2601].Scale = 1
 
     spotvaluelist[0x2622] = namedtuple("spotvalue", ["Description", "Units", "Scale"])
     spotvaluelist[0x2622].Description = "Day Yield"
-    spotvaluelist[0x2622].Units = "kWh"
-    spotvaluelist[0x2622].Scale = 1000
+    spotvaluelist[0x2622].Units = "Wh"
+    spotvaluelist[0x2622].Scale = 1
 
     spotvaluelist[0x462f] = namedtuple("spotvalue", ["Description", "Units", "Scale"])
     spotvaluelist[0x462f].Description = "Feed in time"
@@ -298,6 +298,10 @@ def extract_spot_values(level2Packet, gap=40):
 
             if spotvalue.Units == "TEXT":
                 value = powdata[i + 8:i + 8 + 14].decode("utf-8")
+            elif spotvalue.Units == "hours":
+                value = level2Packet.getFourByteDouble(i + 8)
+            elif spotvalue.Units == "Wh":
+                value = level2Packet.getFourByteDouble(i + 8)
             else:
                 value = level2Packet.getThreeByteDouble(i + 8)
                 if value is not None:

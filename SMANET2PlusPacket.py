@@ -73,6 +73,14 @@ class SMANET2PlusPacket:
             return self.packet[offset + 0] * math.pow(256, 0) + self.packet[offset + 1] * math.pow(256, 1) + \
                    self.packet[offset + 2] * math.pow(256, 2)
 
+    def getFourByteDouble(self, offset):
+        # check if all FFs which is a null value
+        if self.packet[offset + 0] == 0xff and self.packet[offset + 1] == 0xff and self.packet[offset + 2] == 0xff and self.packet[offset + 3] == 0xff:
+            return None
+        else:
+            return self.packet[offset + 0] * math.pow(256, 0) + self.packet[offset + 1] * math.pow(256, 1) + \
+                   self.packet[offset + 2] * math.pow(256, 2) + self.packet[offset + 3] * math.pow(256,3)
+
     def get8ByteFloat(self, offset):
         value = self.packet[offset] * math.pow(256, 0)
         value += self.packet[offset + 1] * math.pow(256, 1)
